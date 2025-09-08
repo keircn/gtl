@@ -11,6 +11,11 @@ import (
 const version = "0.1.0"
 
 func main() {
+	flag.Usage = func() {
+		showHelp()
+		os.Exit(1)
+	}
+
 	var (
 		helpFlag     = flag.Bool("help", false, "Show help information")
 		helpFlagH    = flag.Bool("h", false, "Show help information")
@@ -35,6 +40,12 @@ func main() {
 	if flag.NArg() > 0 {
 		input = strings.Join(flag.Args(), " ")
 	} else {
+		stat, _ := os.Stdin.Stat()
+		if (stat.Mode() & os.ModeCharDevice) != 0 {
+			showHelp()
+			return
+		}
+
 		scanner := bufio.NewScanner(os.Stdin)
 		var lines []string
 		for scanner.Scan() {
@@ -48,9 +59,8 @@ func main() {
 	}
 
 	if strings.TrimSpace(input) == "" {
-		fmt.Fprintf(os.Stderr, "Error: No input provided\n")
-		showUsage()
-		os.Exit(1)
+		showHelp()
+		return
 	}
 
 	result := toTitleCase(input)
