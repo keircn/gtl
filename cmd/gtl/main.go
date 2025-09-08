@@ -90,6 +90,9 @@ func showUsage() {
 
 func showVersion() {
 	fmt.Printf("gtl version %s\n", version)
+	fmt.Println()
+	fmt.Println("Author: keircn")
+	fmt.Println("Report bugs at: https://github.com/keircn/gtl/issues")
 }
 
 func toTitleCase(text string) string {
