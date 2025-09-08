@@ -17,21 +17,18 @@ cp ./gtl ~/.local/bin # or wherever you put your binaries
 ## Usage
 
 ```
-gtl [options] [text]
-echo "text" | gtl [options]
-```
+gtl - Go Title Linter
+Transforms text into properly capitalized titles according to the Chicago Manual of Style.
 
-### Options
+Usage:
+  gtl [options] [text]
+  echo "text" | gtl [options]
 
-```
+Options:
   -h, --help     Show this help message
   -v, --version  Show version information
-```
 
-### Examples
-
-```
-gtl "all your base are belong to us"
-
-All Your Base Are Belong to Us
+Examples:
+  gtl "all your base are belong to us" # All Your Base Are Belong To Us
+  echo "the quick brown fox" | gtl
 ```
