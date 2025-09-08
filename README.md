@@ -16,20 +16,22 @@ cp ./gtl ~/.local/bin # or wherever you put your binaries
 
 ## Usage
 
+```
 gtl [options] [text]
-
 echo "text" | gtl [options]
+```
 
 ### Options
 
+```
   -h, --help     Show this help message
-
   -v, --version  Show version information
+```
 
 ### Examples
 
+```
 gtl "all your base are belong to us"
 
-```md
 All Your Base Are Belong to Us
 ```
