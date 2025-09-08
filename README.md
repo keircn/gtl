@@ -17,9 +17,6 @@ cp ./gtl ~/.local/bin # or wherever you put your binaries
 ## Usage
 
 ```
-gtl - Go Title Linter
-Transforms text into properly capitalized titles according to the Chicago Manual of Style.
-
 Usage:
   gtl [options] [text]
   echo "text" | gtl [options]
