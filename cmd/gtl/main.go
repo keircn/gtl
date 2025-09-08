@@ -68,7 +68,7 @@ func main() {
 }
 
 func showHelp() {
-	fmt.Println("gtl - Go Title Case")
+	fmt.Println("gtl - Go Title Linter")
 	fmt.Println("Transforms text into properly capitalized titles according to the Chicago Manual of Style.")
 	fmt.Println()
 	showUsage()
