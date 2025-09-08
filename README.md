@@ -29,3 +29,7 @@ Examples:
   gtl "all your base are belong to us" # All Your Base Are Belong To Us
   echo "the quick brown fox" | gtl
 ```
+
+## License
+
+This project is subject to the terms of the [MIT License](./LICENSE).
