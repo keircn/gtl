@@ -56,6 +56,36 @@ func TestToTitleCase(t *testing.T) {
 			input:    "up in the air",
 			expected: "Up in the Air",
 		},
+		{
+			name:     "hyphenated words",
+			input:    "self-driving car",
+			expected: "Self-Driving Car",
+		},
+		{
+			name:     "hyphenated with small words",
+			input:    "state-of-the-art technology",
+			expected: "State-of-the-Art Technology",
+		},
+		{
+			name:     "hyphenated at beginning",
+			input:    "co-founder of the company",
+			expected: "Co-Founder of the Company",
+		},
+		{
+			name:     "hyphenated at end",
+			input:    "this is state-of-the-art",
+			expected: "This Is State-of-the-Art",
+		},
+		{
+			name:     "multiple hyphens",
+			input:    "well-thought-out plan",
+			expected: "Well-Thought-Out Plan",
+		},
+		{
+			name:     "hyphen with empty parts",
+			input:    "test--case",
+			expected: "Test--Case",
+		},
 	}
 
 	for _, tt := range tests {
@@ -254,6 +284,71 @@ func TestCapitalizeFirstErrors(t *testing.T) {
 			}
 			if err != nil && result != "" {
 				t.Errorf("capitalizeFirst(%q) returned non-empty result on error: %q", tt.input, result)
+			}
+		})
+	}
+}
+
+func TestTitleHyphenatedWord(t *testing.T) {
+	tests := []struct {
+		name          string
+		word          string
+		isFirstOrLast bool
+		expected      string
+	}{
+		{
+			name:          "simple hyphenated word",
+			word:          "self-driving",
+			isFirstOrLast: false,
+			expected:      "Self-Driving",
+		},
+		{
+			name:          "hyphenated with small word in middle",
+			word:          "state-of-art",
+			isFirstOrLast: false,
+			expected:      "State-of-Art",
+		},
+		{
+			name:          "hyphenated at beginning",
+			word:          "co-founder",
+			isFirstOrLast: true,
+			expected:      "Co-Founder",
+		},
+		{
+			name:          "hyphenated at end",
+			word:          "state-of-the-art",
+			isFirstOrLast: true,
+			expected:      "State-of-the-Art",
+		},
+		{
+			name:          "multiple consecutive hyphens",
+			word:          "test--case",
+			isFirstOrLast: false,
+			expected:      "Test--Case",
+		},
+		{
+			name:          "hyphen at start",
+			word:          "-test",
+			isFirstOrLast: false,
+			expected:      "-Test",
+		},
+		{
+			name:          "hyphen at end",
+			word:          "test-",
+			isFirstOrLast: false,
+			expected:      "Test-",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := titleHyphenatedWord(tt.word, tt.isFirstOrLast)
+			if err != nil {
+				t.Errorf("titleHyphenatedWord(%q, %t) returned unexpected error: %v", tt.word, tt.isFirstOrLast, err)
+				return
+			}
+			if result != tt.expected {
+				t.Errorf("titleHyphenatedWord(%q, %t) = %q, want %q", tt.word, tt.isFirstOrLast, result, tt.expected)
 			}
 		})
 	}

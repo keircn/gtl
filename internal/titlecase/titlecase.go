@@ -64,6 +64,43 @@ func titleWord(word string, isFirstOrLast bool) (string, error) {
 		return "", ErrInvalidUnicode
 	}
 
+	if strings.Contains(word, "-") {
+		return titleHyphenatedWord(word, isFirstOrLast)
+	}
+
+	return titleSingleWord(word, isFirstOrLast)
+}
+
+func titleHyphenatedWord(word string, isFirstOrLast bool) (string, error) {
+	parts := strings.Split(word, "-")
+	titleParts := make([]string, len(parts))
+
+	for i, part := range parts {
+		if part == "" {
+			titleParts[i] = part
+			continue
+		}
+
+		isPartFirstOrLast := isFirstOrLast && (i == 0 || i == len(parts)-1)
+		titlePart, err := titleSingleWord(part, isPartFirstOrLast)
+		if err != nil {
+			return "", err
+		}
+		titleParts[i] = titlePart
+	}
+
+	return strings.Join(titleParts, "-"), nil
+}
+
+func titleSingleWord(word string, isFirstOrLast bool) (string, error) {
+	if word == "" {
+		return word, nil
+	}
+
+	if !utf8.ValidString(word) {
+		return "", ErrInvalidUnicode
+	}
+
 	lowerWord := strings.ToLower(word)
 
 	if isFirstOrLast {
