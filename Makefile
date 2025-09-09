@@ -104,10 +104,10 @@ package: cross-compile
 			cp README.md "$$PACKAGE_DIR/" 2>/dev/null || true; \
 			cp LICENSE "$$PACKAGE_DIR/" 2>/dev/null || true; \
 			if [ "$$ARCHIVE_EXT" = "zip" ]; then \
-				cd $(DIST_DIR) && zip -r "$$PACKAGE_NAME.zip" "$$PACKAGE_NAME/" > /dev/null; \
+				(cd $(DIST_DIR) && zip -r "$$PACKAGE_NAME.zip" "$$PACKAGE_NAME/" > /dev/null); \
 				echo "  $$PACKAGE_NAME.zip"; \
 			else \
-				cd $(DIST_DIR) && tar -czf "$$PACKAGE_NAME.tar.gz" "$$PACKAGE_NAME/" 2>/dev/null; \
+				(cd $(DIST_DIR) && tar -czf "$$PACKAGE_NAME.tar.gz" "$$PACKAGE_NAME/" 2>/dev/null); \
 				echo "  $$PACKAGE_NAME.tar.gz"; \
 			fi; \
 			rm -rf "$$PACKAGE_DIR"; \
