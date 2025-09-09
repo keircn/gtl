@@ -4,7 +4,11 @@ Transforms text into properly capitalized titles according to the Chicago Manual
 
 ## Installation
 
-From source
+### Releases
+
+The latest stable release is always available [here](https://github.com/keircn/gtl/releases/latest)
+
+### Build From Source
 
 ```sh
 git clone https://github.com/keircn/gtl; cd gtl
