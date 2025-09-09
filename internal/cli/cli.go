@@ -8,9 +8,8 @@ import (
 	"strings"
 
 	"github.com/keircn/gtl/internal/titlecase"
+	"github.com/keircn/gtl/pkg/version"
 )
-
-const version = "0.1.0"
 
 func Run() {
 	flag.Usage = func() {
@@ -91,7 +90,7 @@ func showUsage() {
 }
 
 func showVersion() {
-	fmt.Printf("gtl version %s\n", version)
+	fmt.Println(version.BuildVersion())
 	fmt.Println()
 	fmt.Println("Author: keircn")
 	fmt.Println("Report bugs at: https://github.com/keircn/gtl/issues")
