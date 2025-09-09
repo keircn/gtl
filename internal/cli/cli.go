@@ -64,7 +64,11 @@ func Run() {
 		return
 	}
 
-	result := titlecase.ToTitleCase(input)
+	result, err := titlecase.ToTitleCase(input)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 	fmt.Println(result)
 }
 

@@ -1,6 +1,9 @@
 package titlecase
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestToTitleCase(t *testing.T) {
 	tests := []struct {
@@ -17,11 +20,6 @@ func TestToTitleCase(t *testing.T) {
 			name:     "with small words",
 			input:    "the lord of the rings",
 			expected: "The Lord of the Rings",
-		},
-		{
-			name:     "empty string",
-			input:    "",
-			expected: "",
 		},
 		{
 			name:     "single word",
@@ -62,9 +60,54 @@ func TestToTitleCase(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ToTitleCase(tt.input)
+			result, err := ToTitleCase(tt.input)
+			if err != nil {
+				t.Errorf("ToTitleCase(%q) returned unexpected error: %v", tt.input, err)
+				return
+			}
 			if result != tt.expected {
 				t.Errorf("ToTitleCase(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestToTitleCaseErrors(t *testing.T) {
+	tests := []struct {
+		name        string
+		input       string
+		expectedErr error
+	}{
+		{
+			name:        "empty string",
+			input:       "",
+			expectedErr: ErrEmptyInput,
+		},
+		{
+			name:        "whitespace only",
+			input:       "   ",
+			expectedErr: ErrEmptyInput,
+		},
+		{
+			name:        "input too long",
+			input:       strings.Repeat("a", MaxInputLength+1),
+			expectedErr: ErrInputTooLong,
+		},
+		{
+			name:        "invalid unicode",
+			input:       "hello \xff world",
+			expectedErr: ErrInvalidUnicode,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := ToTitleCase(tt.input)
+			if err != tt.expectedErr {
+				t.Errorf("ToTitleCase(%q) error = %v, want %v", tt.input, err, tt.expectedErr)
+			}
+			if err != nil && result != "" {
+				t.Errorf("ToTitleCase(%q) returned non-empty result on error: %q", tt.input, result)
 			}
 		})
 	}
@@ -105,9 +148,112 @@ func TestTitleWord(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := titleWord(tt.word, tt.isFirstOrLast)
+			result, err := titleWord(tt.word, tt.isFirstOrLast)
+			if err != nil {
+				t.Errorf("titleWord(%q, %t) returned unexpected error: %v", tt.word, tt.isFirstOrLast, err)
+				return
+			}
 			if result != tt.expected {
 				t.Errorf("titleWord(%q, %t) = %q, want %q", tt.word, tt.isFirstOrLast, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestTitleWordErrors(t *testing.T) {
+	tests := []struct {
+		name        string
+		word        string
+		expectedErr error
+	}{
+		{
+			name:        "invalid unicode",
+			word:        "hello\xff",
+			expectedErr: ErrInvalidUnicode,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := titleWord(tt.word, false)
+			if err != tt.expectedErr {
+				t.Errorf("titleWord(%q) error = %v, want %v", tt.word, err, tt.expectedErr)
+			}
+			if err != nil && result != "" {
+				t.Errorf("titleWord(%q) returned non-empty result on error: %q", tt.word, result)
+			}
+		})
+	}
+}
+
+func TestCapitalizeFirst(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "lowercase word",
+			input:    "hello",
+			expected: "Hello",
+		},
+		{
+			name:     "already capitalized",
+			input:    "Hello",
+			expected: "Hello",
+		},
+		{
+			name:     "empty string",
+			input:    "",
+			expected: "",
+		},
+		{
+			name:     "single character",
+			input:    "a",
+			expected: "A",
+		},
+		{
+			name:     "unicode character",
+			input:    "ñoño",
+			expected: "Ñoño",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := capitalizeFirst(tt.input)
+			if err != nil {
+				t.Errorf("capitalizeFirst(%q) returned unexpected error: %v", tt.input, err)
+				return
+			}
+			if result != tt.expected {
+				t.Errorf("capitalizeFirst(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestCapitalizeFirstErrors(t *testing.T) {
+	tests := []struct {
+		name        string
+		input       string
+		expectedErr error
+	}{
+		{
+			name:        "invalid unicode",
+			input:       "hello\xff",
+			expectedErr: ErrInvalidUnicode,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := capitalizeFirst(tt.input)
+			if err != tt.expectedErr {
+				t.Errorf("capitalizeFirst(%q) error = %v, want %v", tt.input, err, tt.expectedErr)
+			}
+			if err != nil && result != "" {
+				t.Errorf("capitalizeFirst(%q) returned non-empty result on error: %q", tt.input, result)
 			}
 		})
 	}
