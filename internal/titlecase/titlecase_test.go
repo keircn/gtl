@@ -86,6 +86,51 @@ func TestToTitleCase(t *testing.T) {
 			input:    "test--case",
 			expected: "Test--Case",
 		},
+		{
+			name:     "common abbreviations",
+			input:    "USA travel guide",
+			expected: "USA Travel Guide",
+		},
+		{
+			name:     "api documentation",
+			input:    "API documentation guide",
+			expected: "API Documentation Guide",
+		},
+		{
+			name:     "mixed abbreviations",
+			input:    "FBI investigation about USA",
+			expected: "FBI Investigation About USA",
+		},
+		{
+			name:     "tech abbreviations",
+			input:    "XML parser for HTML and CSS",
+			expected: "XML Parser for HTML and CSS",
+		},
+		{
+			name:     "special case iOS",
+			input:    "iOS app development",
+			expected: "Ios App Development",
+		},
+		{
+			name:     "abbreviations with small words",
+			input:    "API of the USA",
+			expected: "API of the USA",
+		},
+		{
+			name:     "abbreviations at end",
+			input:    "guide to using API",
+			expected: "Guide to Using API",
+		},
+		{
+			name:     "unknown abbreviations",
+			input:    "XYZ company ABC division",
+			expected: "XYZ Company ABC Division",
+		},
+		{
+			name:     "lowercase abbreviations converted",
+			input:    "usa travel guide",
+			expected: "Usa Travel Guide",
+		},
 	}
 
 	for _, tt := range tests {
@@ -349,6 +394,122 @@ func TestTitleHyphenatedWord(t *testing.T) {
 			}
 			if result != tt.expected {
 				t.Errorf("titleHyphenatedWord(%q, %t) = %q, want %q", tt.word, tt.isFirstOrLast, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestShouldPreserveOriginalCasing(t *testing.T) {
+	tests := []struct {
+		name     string
+		word     string
+		expected bool
+	}{
+		{
+			name:     "all caps abbreviation",
+			word:     "USA",
+			expected: true,
+		},
+		{
+			name:     "all caps short word",
+			word:     "API",
+			expected: true,
+		},
+		{
+			name:     "mixed case abbreviation",
+			word:     "iOS",
+			expected: false,
+		},
+		{
+			name:     "mixed case word with many caps",
+			word:     "XMLHttpRequest",
+			expected: false,
+		},
+		{
+			name:     "regular word",
+			word:     "hello",
+			expected: false,
+		},
+		{
+			name:     "single letter",
+			word:     "A",
+			expected: false,
+		},
+		{
+			name:     "title case word",
+			word:     "Hello",
+			expected: false,
+		},
+		{
+			name:     "empty string",
+			word:     "",
+			expected: false,
+		},
+		{
+			name:     "too long all caps",
+			word:     "VERYLONGWORD",
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := shouldPreserveOriginalCasing(tt.word)
+			if result != tt.expected {
+				t.Errorf("shouldPreserveOriginalCasing(%q) = %t, want %t", tt.word, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestPreserveOrCapitalize(t *testing.T) {
+	tests := []struct {
+		name          string
+		word          string
+		isFirstOrLast bool
+		expected      string
+	}{
+		{
+			name:          "preserve all caps abbreviation",
+			word:          "USA",
+			isFirstOrLast: false,
+			expected:      "USA",
+		},
+		{
+			name:          "preserve mixed case",
+			word:          "iOS",
+			isFirstOrLast: false,
+			expected:      "Ios",
+		},
+		{
+			name:          "regular word middle",
+			word:          "hello",
+			isFirstOrLast: false,
+			expected:      "Hello",
+		},
+		{
+			name:          "small word middle",
+			word:          "of",
+			isFirstOrLast: false,
+			expected:      "of",
+		},
+		{
+			name:          "small word first",
+			word:          "of",
+			isFirstOrLast: true,
+			expected:      "Of",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := preserveOrCapitalize(tt.word, tt.isFirstOrLast)
+			if err != nil {
+				t.Errorf("preserveOrCapitalize(%q, %t) returned unexpected error: %v", tt.word, tt.isFirstOrLast, err)
+				return
+			}
+			if result != tt.expected {
+				t.Errorf("preserveOrCapitalize(%q, %t) = %q, want %q", tt.word, tt.isFirstOrLast, result, tt.expected)
 			}
 		})
 	}

@@ -101,17 +101,7 @@ func titleSingleWord(word string, isFirstOrLast bool) (string, error) {
 		return "", ErrInvalidUnicode
 	}
 
-	lowerWord := strings.ToLower(word)
-
-	if isFirstOrLast {
-		return capitalizeFirst(lowerWord)
-	}
-
-	if SmallWords[lowerWord] {
-		return lowerWord, nil
-	}
-
-	return capitalizeFirst(lowerWord)
+	return preserveOrCapitalize(word, isFirstOrLast)
 }
 
 func capitalizeFirst(word string) (string, error) {
@@ -130,4 +120,53 @@ func capitalizeFirst(word string) (string, error) {
 
 	runes[0] = unicode.ToUpper(runes[0])
 	return string(runes), nil
+}
+
+func shouldPreserveOriginalCasing(word string) bool {
+	if len(word) < 2 {
+		return false
+	}
+
+	runes := []rune(word)
+	allUpper := true
+	hasLetter := false
+	letterCount := 0
+
+	for _, r := range runes {
+		if unicode.IsLetter(r) {
+			hasLetter = true
+			letterCount++
+			if !unicode.IsUpper(r) {
+				allUpper = false
+			}
+		}
+	}
+
+	if !hasLetter {
+		return false
+	}
+
+	if allUpper && letterCount >= 2 && letterCount <= 6 {
+		return true
+	}
+
+	return false
+}
+
+func preserveOrCapitalize(word string, isFirstOrLast bool) (string, error) {
+	if shouldPreserveOriginalCasing(word) {
+		return word, nil
+	}
+
+	lowerWord := strings.ToLower(word)
+
+	if isFirstOrLast {
+		return capitalizeFirst(lowerWord)
+	}
+
+	if SmallWords[lowerWord] {
+		return lowerWord, nil
+	}
+
+	return capitalizeFirst(lowerWord)
 }
