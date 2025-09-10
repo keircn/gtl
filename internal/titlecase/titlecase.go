@@ -36,7 +36,7 @@ func tokenize(text string) []Token {
 	var currentToken strings.Builder
 	var isInWord bool
 
-	for _, r := range runes {
+	for i, r := range runes {
 		if unicode.IsSpace(r) {
 			if currentToken.Len() > 0 {
 				tokens = append(tokens, Token{
@@ -52,7 +52,7 @@ func tokenize(text string) []Token {
 				IsPunctuation: false,
 			})
 			isInWord = false
-		} else if unicode.IsLetter(r) || r == '\'' || r == '-' {
+		} else if unicode.IsLetter(r) || isValidWordCharacter(r, runes, i) {
 			if !isInWord && currentToken.Len() > 0 {
 				tokens = append(tokens, Token{
 					Text:          currentToken.String(),
@@ -86,6 +86,20 @@ func tokenize(text string) []Token {
 	}
 
 	return tokens
+}
+
+func isValidWordCharacter(r rune, runes []rune, index int) bool {
+	if r == '-' {
+		return true
+	}
+
+	if r == '\'' {
+		return index > 0 && index < len(runes)-1 &&
+			unicode.IsLetter(runes[index-1]) &&
+			unicode.IsLetter(runes[index+1])
+	}
+
+	return false
 }
 
 func processTokens(tokens []Token) (string, error) {
