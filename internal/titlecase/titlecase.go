@@ -2,6 +2,7 @@ package titlecase
 
 import (
 	"errors"
+	"regexp"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -37,22 +38,12 @@ func ToTitleCase(text string) (string, error) {
 		return "", ErrInvalidUnicode
 	}
 
-	words := strings.Fields(text)
-	if len(words) == 0 {
+	tokens := tokenize(text)
+	if len(tokens) == 0 {
 		return "", ErrEmptyInput
 	}
 
-	result := make([]string, len(words))
-
-	for i, word := range words {
-		titleWord, err := titleWord(word, i == 0 || i == len(words)-1)
-		if err != nil {
-			return "", err
-		}
-		result[i] = titleWord
-	}
-
-	return strings.Join(result, " "), nil
+	return processTokens(tokens)
 }
 
 func titleWord(word string, isFirstOrLast bool) (string, error) {
