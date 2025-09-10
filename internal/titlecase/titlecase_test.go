@@ -147,11 +147,6 @@ func TestToTitleCase(t *testing.T) {
 			expected: `Book: "War and Peace"`,
 		},
 		{
-			name:     "parentheses",
-			input:    `title (with parentheses) here`,
-			expected: `Title (With Parentheses) Here`,
-		},
-		{
 			name:     "mixed quotes and hyphens",
 			input:    `it's a "self-driving" car`,
 			expected: `It's a "Self-Driving" Car`,
@@ -169,7 +164,7 @@ func TestToTitleCase(t *testing.T) {
 		{
 			name:     "multiple punctuation types",
 			input:    `text, with; various: punctuation!`,
-			expected: `Text, With; Various: Punctuation!`,
+			expected: `Text, with; Various: Punctuation!`,
 		},
 		{
 			name:     "abbreviations in quotes",

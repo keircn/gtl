@@ -141,19 +141,39 @@ func processTokens(tokens []Token) (string, error) {
 }
 
 func shouldCapitalizeAfterPunctuation(tokens []Token, currentIndex int) bool {
+	lastPunctuation := ""
 	for i := currentIndex - 1; i >= 0; i-- {
 		token := tokens[i]
 		if token.IsWord {
 			return false
 		}
 		if token.IsPunctuation {
-			text := strings.TrimSpace(token.Text)
-			if strings.ContainsAny(text, ":\"'(") {
-				return true
-			}
+			lastPunctuation = strings.TrimSpace(token.Text)
 		}
 	}
-	return false
+
+	return lastPunctuation == "(" ||
+		lastPunctuation == ":" ||
+		lastPunctuation == "\"" ||
+		lastPunctuation == "'"
+}
+
+func isOpeningQuote(tokens []Token, quoteIndex int) bool {
+	quoteText := strings.TrimSpace(tokens[quoteIndex].Text)
+	if !strings.ContainsAny(quoteText, "\"'") {
+		return false
+	}
+
+	for i := quoteIndex - 1; i >= 0; i-- {
+		if tokens[i].IsWord {
+			return true
+		}
+		if tokens[i].IsPunctuation && strings.TrimSpace(tokens[i].Text) != "" {
+			return true
+		}
+	}
+
+	return true
 }
 
 func ToTitleCase(text string) (string, error) {
@@ -171,6 +191,18 @@ func ToTitleCase(text string) (string, error) {
 
 	tokens := tokenize(text)
 	if len(tokens) == 0 {
+		return "", ErrEmptyInput
+	}
+
+	hasWords := false
+	for _, token := range tokens {
+		if token.IsWord {
+			hasWords = true
+			break
+		}
+	}
+
+	if !hasWords {
 		return "", ErrEmptyInput
 	}
 
