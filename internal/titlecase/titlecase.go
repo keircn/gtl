@@ -2,7 +2,6 @@ package titlecase
 
 import (
 	"errors"
-	"regexp"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -23,6 +22,124 @@ var SmallWords = map[string]bool{
 	"by": true, "for": true, "if": true, "in": true, "nor": true, "of": true,
 	"on": true, "or": true, "the": true, "to": true, "up": true, "yet": true,
 	"so": true, "with": true,
+}
+
+type Token struct {
+	Text          string
+	IsWord        bool
+	IsPunctuation bool
+}
+
+func tokenize(text string) []Token {
+	var tokens []Token
+	runes := []rune(text)
+	var currentToken strings.Builder
+	var isInWord bool
+
+	for _, r := range runes {
+		if unicode.IsSpace(r) {
+			if currentToken.Len() > 0 {
+				tokens = append(tokens, Token{
+					Text:          currentToken.String(),
+					IsWord:        isInWord,
+					IsPunctuation: !isInWord,
+				})
+				currentToken.Reset()
+			}
+			tokens = append(tokens, Token{
+				Text:          string(r),
+				IsWord:        false,
+				IsPunctuation: false,
+			})
+			isInWord = false
+		} else if unicode.IsLetter(r) || r == '\'' || r == '-' {
+			if !isInWord && currentToken.Len() > 0 {
+				tokens = append(tokens, Token{
+					Text:          currentToken.String(),
+					IsWord:        false,
+					IsPunctuation: true,
+				})
+				currentToken.Reset()
+			}
+			currentToken.WriteRune(r)
+			isInWord = true
+		} else {
+			if isInWord && currentToken.Len() > 0 {
+				tokens = append(tokens, Token{
+					Text:          currentToken.String(),
+					IsWord:        true,
+					IsPunctuation: false,
+				})
+				currentToken.Reset()
+			}
+			currentToken.WriteRune(r)
+			isInWord = false
+		}
+	}
+
+	if currentToken.Len() > 0 {
+		tokens = append(tokens, Token{
+			Text:          currentToken.String(),
+			IsWord:        isInWord,
+			IsPunctuation: !isInWord,
+		})
+	}
+
+	return tokens
+}
+
+func processTokens(tokens []Token) (string, error) {
+	var result strings.Builder
+	wordCount := 0
+	var wordIndices []int
+
+	for i, token := range tokens {
+		if token.IsWord {
+			wordIndices = append(wordIndices, i)
+			wordCount++
+		}
+	}
+
+	for i, token := range tokens {
+		if token.IsWord {
+			wordIndex := -1
+			for j, idx := range wordIndices {
+				if idx == i {
+					wordIndex = j
+					break
+				}
+			}
+
+			isFirstOrLast := wordIndex == 0 || wordIndex == wordCount-1
+			shouldCapitalizeAfterPunctuation := shouldCapitalizeAfterPunctuation(tokens, i)
+
+			titleWord, err := titleWord(token.Text, isFirstOrLast || shouldCapitalizeAfterPunctuation)
+			if err != nil {
+				return "", err
+			}
+			result.WriteString(titleWord)
+		} else {
+			result.WriteString(token.Text)
+		}
+	}
+
+	return result.String(), nil
+}
+
+func shouldCapitalizeAfterPunctuation(tokens []Token, currentIndex int) bool {
+	for i := currentIndex - 1; i >= 0; i-- {
+		token := tokens[i]
+		if token.IsWord {
+			return false
+		}
+		if token.IsPunctuation {
+			text := strings.TrimSpace(token.Text)
+			if strings.ContainsAny(text, ":\"'(") {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func ToTitleCase(text string) (string, error) {
