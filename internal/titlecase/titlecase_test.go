@@ -131,6 +131,51 @@ func TestToTitleCase(t *testing.T) {
 			input:    "usa travel guide",
 			expected: "Usa Travel Guide",
 		},
+		{
+			name:     "double quoted text",
+			input:    `"the great gatsby" by fitzgerald`,
+			expected: `"The Great Gatsby" by Fitzgerald`,
+		},
+		{
+			name:     "single quoted text",
+			input:    `'hello world' and other stories`,
+			expected: `'Hello World' and Other Stories`,
+		},
+		{
+			name:     "text after colon",
+			input:    `book: "war and peace"`,
+			expected: `Book: "War and Peace"`,
+		},
+		{
+			name:     "parentheses",
+			input:    `title (with parentheses) here`,
+			expected: `Title (With Parentheses) Here`,
+		},
+		{
+			name:     "mixed quotes and hyphens",
+			input:    `it's a "self-driving" car`,
+			expected: `It's a "Self-Driving" Car`,
+		},
+		{
+			name:     "contractions preserved",
+			input:    `what's happening today?`,
+			expected: `What's Happening Today?`,
+		},
+		{
+			name:     "word-initial contractions",
+			input:    `'twas the night before`,
+			expected: `'Twas the Night Before`,
+		},
+		{
+			name:     "multiple punctuation types",
+			input:    `text, with; various: punctuation!`,
+			expected: `Text, With; Various: Punctuation!`,
+		},
+		{
+			name:     "abbreviations in quotes",
+			input:    `"API" documentation and "USA" guide`,
+			expected: `"API" Documentation and "USA" Guide`,
+		},
 	}
 
 	for _, tt := range tests {
